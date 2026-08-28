@@ -22,7 +22,7 @@ export class FindTrainsForm {
   readonly destinationInput: Locator;
   readonly departDateInput: Locator;
   readonly returnDateInput: Locator;
-  readonly returnDateButton: Locator; // for One-Way trips, the return date is a button, not a text field
+  readonly returnDateButton: Locator; // for One-Way trips - the return date is a button, not a text field
   readonly swapStationsButton: Locator;
   readonly travelersButton: Locator;
   readonly findTrainsButton: Locator; // submits the search
@@ -30,18 +30,20 @@ export class FindTrainsForm {
   /** Locator for all autocomplete suggestions in the active station field. */
   readonly stationOptions: Locator;
 
-  /** Locator for the parent element of the Find Trains form. */
+  /**
+   * Locator for the parent element of the Find Trains form.
+   *
+   * amtrak.com/home hosts multiple custom elements, several of which render
+   * their own station/date inputs. Scoping to the fare finder ensures that
+   * `FIND TRAINS` and `Depart Date` locators resolve to just one element.
+   */
   private readonly root: Locator;
 
   constructor(page: Page) {
     this.page = page;
 
-    // amtrak.com/home hosts multiple custom elements, several of which render
-    // their own station/date inputs. Scoping to the fare finder ensures that
-    // `FIND TRAINS` and `Depart Date` locators resolve to just one element.
-
     // `testIdAttribute` is set to Amtrak's own `amt-auto-test-id` in the
-    // config, so this reads as a test id rather than a raw attribute selector.
+    // config, so this uses `getByTestId` instead of a CSS attribute selector.
     this.root = page.getByTestId('fare-finder-cmp');
 
     // These inputs expose role=combobox only while empty. Once a suggestion
@@ -128,8 +130,6 @@ export class FindTrainsForm {
   async selectTripType(tripType: TripType): Promise<void> {
     await test.step(`Select trip type "${tripType}"`, async () => {
       await this.tripTypeButton.click();
-      // No waitFor before the click: Playwright's actionability check already
-      // waits for visible, stable, enabled and receives-events.
       await this.page
         .getByRole('button', { name: tripType, exact: true })
         .first()
@@ -153,7 +153,7 @@ export class FindTrainsForm {
    * Types free text into the origin field without selecting an option. Used to
    * exercise the autocomplete's own validation.
    */
-  async typeOrigin(text: string): Promise<void> {
+  async typeInvalidOrigin(text: string): Promise<void> {
     await test.step(`Type "${text}" into the origin field`, async () => {
       await this.originInput.fill(text);
     });
@@ -170,7 +170,7 @@ export class FindTrainsForm {
    * exercise dates the form is expected to reject, where `setDepartDate`
    * would fail on its own commit assertion.
    */
-  async typeDepartDate(date: Date): Promise<void> {
+  async typeInvalidDepartDate(date: Date): Promise<void> {
     await test.step(`Type depart date ${formatDate(date)}`, async () => {
       await this.enterDate(this.departDateInput, date);
     });
@@ -224,19 +224,7 @@ export class FindTrainsForm {
     await expect(input).toHaveValue(station.code);
   }
 
-  /**
-   * Uses `click({ force: true })` because a floating <label> sits over these
-   * inputs and intercepts pointer events. `force` skips *every* actionability
-   * check, and should normally be avoided - in this case, mitigated by a value
-   * assertion guard. If the click doesn't land properly, the date never parses,
-   * failing the assertion.
-   *
-   * Also types with separate keystrokes. Normally an antipattern, as `fill()`
-   * is preferred; on this page, the date inputs don't handle it properly. When
-   * `fill()` is used, the date appears in the box, but the form never parses
-   * it, causing a silent failure: the field looks correct, but the submit
-   * button remains disabled.
-   */
+  /** Fills a date input and asserts the form accepted it. */
   private async fillDate(input: Locator, date: Date): Promise<void> {
     await this.enterDate(input, date);
 
@@ -246,15 +234,26 @@ export class FindTrainsForm {
     await expect(input).toHaveValue(normalizeDate(date));
   }
 
-  /** Types a date without requiring the form to accept it. */
+  /**
+   * Internal helper - types a date without requiring the form to accept it.
+   *
+   * Uses `click({ force: true })` because a floating <label> sits over these
+   * inputs and intercepts pointer events. `force` skips *every* actionability
+   * check, and should normally be avoided - in this case, mitigated by a value
+   * assertion guard (where needed). If the click doesn't land properly, the
+   * date never parses, failing the assertion.
+   *
+   * Also types with separate keystrokes. Normally an antipattern, as `fill()`
+   * is preferred; on this page, the date inputs don't handle it properly. When
+   * `fill()` is used, the date appears in the box, but the form never parses
+   * it, causing a silent failure: the field looks correct, but the submit
+   * button remains disabled.
+   */
   private async enterDate(input: Locator, date: Date): Promise<void> {
     await input.click({ force: true });
     await input.pressSequentially(formatDate(date), { delay: 40 });
-    // Escape closes the picker. Blur is what commits the value: in Round-Trip
-    // mode Escape alone leaves the field holding the raw text and the form
-    // never receives the date.
-    await this.page.keyboard.press('Escape');
-    await input.blur();
+    await this.page.keyboard.press('Escape'); // closes the calendar widget
+    await input.blur(); // simulates the user clicking away, which triggers the form to parse the date
   }
 }
 
