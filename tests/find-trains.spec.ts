@@ -6,7 +6,7 @@ import { test } from '@playwright/test';
  * behavior is out of scope.
  */
 
-test.fixme('Find Trains button enabled when form is filled', async () => {
+test.fixme('Find Trains button enabled once origin, destination, and depart date set', async () => {
   // The submit button is disabled until all three inputs are satisfied.
   // Asserting it is disabled first validates both ends of that logic.
   //
