@@ -3,8 +3,7 @@ import { defineConfig, devices } from '@playwright/test';
 /**
  * See https://playwright.dev/docs/test-configuration.
  *
- * `npm test` runs chromium only for fast feedback; `npm run test:all` runs the
- * full matrix. Both projects stay defined so cross-browser is one flag away.
+ * `npm test` runs chromium only; `npm run test:all` runs the full matrix
  */
 export default defineConfig({
   testDir: './tests',
@@ -15,23 +14,27 @@ export default defineConfig({
   /* Fail the build on CI if a `test.only` was left in the source. */
   forbidOnly: !!process.env.CI,
 
-  /* Retry on CI only - amtrak.com is a third-party production site. */
+  /* Retry on CI only - GitHub workers are more constrained than local dev
+   * machines, so flakiness there is more likely. */
   retries: process.env.CI ? 2 : 0,
 
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  /* Capped at 2 due to flakiness occurring locally at higher values. The limit
+   * is not the site refusing traffic - confirmed via concurrent API calls.
+   * Instead, it seems that once several browsers are rendering this page at
+   * once, the animated suggestion dropdown stops being reliable enough to pass
+   * Playwright's stability check before the click. Opt out of parallel tests
+   * entirely on CI. */
+  workers: process.env.CI ? 1 : 2,
 
-  /* Generous relative to the 30s default: the AUT is a heavy production
-   * Angular app, not a static page. Deliberately not high enough to mask a
-   * genuine hang. */
+  /* Doubled from the default values to give extra headroom on slower PCs or CI runners. */
   timeout: 60_000,
   expect: {
     timeout: 10_000,
   },
 
-  /* `html` alone prints nothing useful to a CI log beyond "run show-report",
-   * which turns every failure into a download-and-open chore. `list` gives
-   * per-test console output; `github` annotates failures inline on the PR. */
+  /* `html` alone prints nothing useful to a CI log beyond "run show-report".
+   * `list` gives per-test console output, `github` annotates failures inline
+   * on the PR. */
   reporter: process.env.CI
     ? [['github'], ['html', { open: 'never' }]]
     : [['list'], ['html', { open: 'never' }]],
@@ -39,6 +42,10 @@ export default defineConfig({
   /* Shared settings for all projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     baseURL: process.env.BASE_URL ?? 'https://www.amtrak.com',
+
+    /* Amtrak ships its own automation hooks under this attribute - this lets
+     * us use the built-in getByTestId() instead of a raw attribute selector. */
+    testIdAttribute: 'amt-auto-test-id',
 
     /* Collect trace when retrying a failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
@@ -49,7 +56,11 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        /* use the new Chrome for Testing build instead of `chromium-headless-shell` */
+        channel: 'chromium',
+      },
     },
     {
       name: 'firefox',
