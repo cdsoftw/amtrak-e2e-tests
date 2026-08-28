@@ -19,7 +19,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
 
   /* Capped at 2 due to flakiness occurring locally at higher values. The limit
-   * is not the site refusing traffic - confirmed via concurrent API calls.
+   * is not the site refusing traffic (confirmed via concurrent API calls).
    * Instead, it seems that once several browsers are rendering this page at
    * once, the animated suggestion dropdown stops being reliable enough to pass
    * Playwright's stability check before the click. Opt out of parallel tests
@@ -42,6 +42,9 @@ export default defineConfig({
   /* Shared settings for all projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     baseURL: process.env.BASE_URL ?? 'https://www.amtrak.com',
+
+    /* Bounds every action and every `locator.waitFor`. */
+    actionTimeout: 15_000,
 
     /* Amtrak ships its own automation hooks under this attribute - this lets
      * us use the built-in getByTestId() instead of a raw attribute selector. */
