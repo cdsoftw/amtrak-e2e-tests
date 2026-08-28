@@ -1,0 +1,7 @@
+# Generated test artifacts
+playwright-report/
+test-results/
+blob-report/
+
+# Managed by npm - reformatting it just causes churn on the next install
+package-lock.json
