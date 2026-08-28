@@ -50,7 +50,7 @@ npm run format        # prettier --write
 ```text
 pages/       page object for the Find trains form
 fixtures/    the `findTrains` test fixture (navigated, past the cookie banner)
-data/        station reference data and the search-criteria builder
+data/        station reference data and the search-criteria factory
 tests/       specs
 ```
 
