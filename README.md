@@ -4,7 +4,7 @@
 
 This repository contains an end-to-end test suite for the **"Find trains"** search form on the [Amtrak homepage](https://www.amtrak.com/home), written in Playwright for Node.js and TypeScript. Scope is deliberately narrowed to the form and its inputs, up to and including the FIND TRAINS button click; limited to a ~4-5 hour time limit.
 
-### [Approach and Test Plan](./APPROACH.md)
+### [Testing Approach](./APPROACH.md)
 
 ---
 
