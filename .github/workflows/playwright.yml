@@ -1,27 +1,37 @@
 name: Playwright Tests
 on:
   push:
-    branches: [main, master]
+    branches: [master]
   pull_request:
-    branches: [main, master]
+    branches: [master]
 jobs:
   test:
-    timeout-minutes: 60
+    name: ${{ matrix.project }}
+    timeout-minutes: 15
     runs-on: ubuntu-latest
+    strategy:
+      # one browser failing should not cancel the other two - this would hide
+      # whether the failure is browser-specific
+      fail-fast: false
+      matrix:
+        project: [chromium, firefox, webkit]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
-          node-version: lts/*
+          # single source of truth, shared with local fnm/nvm via .nvmrc
+          node-version-file: .nvmrc
+          cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps ${{ matrix.project }}
       - name: Run Playwright tests
-        run: npx playwright test
-      - uses: actions/upload-artifact@v4
+        run: npx playwright test --project=${{ matrix.project }}
+      - uses: actions/upload-artifact@v7
         if: ${{ !cancelled() }}
         with:
-          name: playwright-report
+          # unique per matrix job - upload-artifact rejects duplicate names
+          name: playwright-report-${{ matrix.project }}
           path: playwright-report/
           retention-days: 30
