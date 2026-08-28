@@ -12,6 +12,8 @@ export default defineConfig([
       'playwright-report/',
       'test-results/',
       'blob-report/',
+      /* ESLint does not read .gitignore - list those files here as well */
+      '.playwright-cli/',
     ],
   },
 
@@ -21,9 +23,8 @@ export default defineConfig([
     extends: ['js/recommended'],
   },
 
-  /* Type-aware linting. The headline rule is `no-floating-promises`: a missing
-   * `await` on a Playwright assertion silently passes, which is the worst
-   * failure mode a test suite can have. */
+  /* type-aware linting - `no-floating-promises` checks for missing `await`s
+   *  on Playwright assertions */
   tseslint.configs.recommendedTypeChecked,
   {
     files: ['**/*.{ts,mts,cts}'],
@@ -48,9 +49,6 @@ export default defineConfig([
     language: 'markdown/gfm',
     extends: ['markdown/recommended'],
     rules: {
-      /* Intentional: `######` renders as small muted text on GitHub, which is
-       * the right visual weight for a byline or footnote. These docs are flat
-       * enough that a strict heading ladder buys nothing. */
       'markdown/heading-increment': 'off',
     },
   },
