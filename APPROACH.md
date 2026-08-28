@@ -1,4 +1,4 @@
-# Approach and Test Plan
+# Testing Approach
 
 ### Application Under Test (AUT):
 
