@@ -1,7 +1,4 @@
-# Generated test artifacts
-playwright-report/
-test-results/
-blob-report/
+# Prettier honors .gitignore files by default, so those aren't needed
 
-# Managed by npm - reformatting it just causes churn on the next install
+# package-lock.json is committed, so it needs an explicit entry
 package-lock.json
