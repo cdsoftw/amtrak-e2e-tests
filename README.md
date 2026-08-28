@@ -68,4 +68,4 @@ The suite caps `workers` at 2 locally, and 1 on CI. The station suggestion dropd
 
 ### Tooling and process
 
-Playwright + TypeScript, with Prettier + ESLint 9 with `typescript-eslint` type-aware rules and `eslint-plugin-playwright`. As an experiment, I initally made some use of the Playwright MCP and/or CLI + skills, but found their results lackluster for a greenfield project like this - in all, I leveraged Agentic AI only for a basic initial ideating process, as well code reviews / bug-finding. I designed/chose the test cases myself, and all prose + source code in this repository was written, verified, and ran by me personally.
+Playwright + TypeScript, with Prettier + ESLint 9 with `typescript-eslint` type-aware rules and `eslint-plugin-playwright`. As an experiment, I initally made some use of the Playwright MCP and/or CLI + skills, but found their results a tad lackluster for a greenfield project like this. In all, I leveraged Agentic AI only for a basic initial ideating process, as well code reviews / bug-finding. I designed/chose the test cases myself, and all prose + source code in this repository was written, verified, and ran by me personally.
