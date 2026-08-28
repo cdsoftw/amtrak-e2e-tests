@@ -31,6 +31,8 @@ Exhaustive coverage of the form is unrealistic within the time budget, so I focu
 
 The submit button ships disabled and enables only once origin, destination, and departure date are all satisfied. That transition is the application's verdict on whether the form is valid, it's observable without leaving the page, and it sits exactly on the scope boundary, which makes it a better assertion target than anything downstream.
 
+`npx playwright test --list` prints the full picture: what is covered, and what is declared with `test.fixme` but not yet written. The planned items sit in the same `describe` block as the tests they relate to, so each area shows its own gaps.
+
 ### What the page object covers
 
 The page object models the form's primary controls and nothing else:

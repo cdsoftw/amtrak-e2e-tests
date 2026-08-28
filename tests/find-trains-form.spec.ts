@@ -2,9 +2,16 @@ import { test, expect } from '../fixtures/test';
 import { makeSearch, daysFromToday } from '../data/search-criteria';
 import { STATIONS, type Station } from '../data/stations';
 
+/** Station data is interpolated into a RegExp, so metacharacters must escape. */
+const escapeRegExp = (text: string) =>
+  text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 /** Matches both the code and the full name in a station field. */
 const identifies = (station: Station) =>
-  new RegExp(`^(${station.code}|${station.query})`, 'i');
+  new RegExp(
+    `^(${escapeRegExp(station.code)}|${escapeRegExp(station.query)})`,
+    'i'
+  );
 
 /**
  * Scope: the "Find trains" search form on amtrak.com/home, up to and including
@@ -25,7 +32,7 @@ test.describe('Find trains - initial state', () => {
     await expect(findTrains.departDateInput).toHaveValue('');
 
     await expect(findTrains.tripTypeButton).toContainText('One-Way');
-    await expect(findTrains.travelersButton).toHaveText(/1\s*Traveler/);
+    await expect(findTrains.travelersButton).toHaveText(/^\s*1\s*Traveler\s*$/);
 
     await expect(findTrains.findTrainsButton).toBeDisabled();
   });
