@@ -24,7 +24,7 @@ export default defineConfig([
   },
 
   /* type-aware linting - `no-floating-promises` checks for missing `await`s
-   *  on Playwright assertions */
+   * on Playwright assertions */
   tseslint.configs.recommendedTypeChecked,
   {
     files: ['**/*.{ts,mts,cts}'],
@@ -53,13 +53,12 @@ export default defineConfig([
     },
   },
 
-  /* Markdown and its embedded code blocks are not part of the TS program, so
-   * type-aware rules would error trying to resolve them. */
+  /* any embedded code in Markdown shouldn't fail the type-aware rules */
   {
     files: ['**/*.md', '**/*.md/**'],
     extends: [tseslint.configs.disableTypeChecked],
   },
 
-  /* Must stay last: turns off stylistic rules that would fight Prettier. */
+  /* must stay last: turns off stylistic rules that would fight Prettier */
   eslintConfigPrettier,
 ]);
