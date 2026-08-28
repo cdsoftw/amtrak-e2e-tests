@@ -22,7 +22,7 @@ export function daysFromToday(days: number): Date {
  * A valid one-way search, with any field overridable. Uses relative dates, as
  * the suite would rot the moment a hard-coded date falls into the past.
  */
-export function aSearch(
+export function makeSearch(
   overrides: Partial<SearchCriteria> = {}
 ): SearchCriteria {
   return {
