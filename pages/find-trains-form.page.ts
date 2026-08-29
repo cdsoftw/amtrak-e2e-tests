@@ -229,7 +229,10 @@ export class FindTrainsForm {
    */
   private async selectStation(input: Locator, station: Station): Promise<void> {
     await input.fill(station.query);
-    await this.stationOptions.first().click();
+    await this.stationOptions
+      // e.g. '(WAS)'; exact match + substring
+      .filter({ hasText: new RegExp(`.*\\(${station.code}\\).*`) })
+      .click();
 
     // synchronization: the field holds the station code once the selection is
     // committed to the form, which happens after the keypress
