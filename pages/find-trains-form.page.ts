@@ -152,7 +152,7 @@ export class FindTrainsForm {
   async selectTripType(tripType: TripType): Promise<void> {
     await test.step(`Select trip type "${tripType}"`, async () => {
       await this.tripTypeButton.click();
-      await this.page
+      await this.page // dropdown options exist outside root's subtree
         .getByRole('button', { name: tripType, exact: true })
         .first()
         .click();
@@ -270,9 +270,12 @@ export class FindTrainsForm {
    * button remains disabled.
    */
   private async enterDate(input: Locator, date: Date): Promise<void> {
+    const dateStr = formatDate(date);
+
     await input.clear();
     await input.click({ force: true });
-    await input.pressSequentially(formatDate(date), { delay: 40 });
+    await input.pressSequentially(dateStr, { delay: 40 }); // simulate real user behavior
+    await expect(input).toHaveValue(dateStr); // ensure the date was typed correctly
     await this.page.keyboard.press('Escape'); // closes the calendar widget
     await input.blur(); // simulates the user clicking away, which triggers the form to parse the date
   }
