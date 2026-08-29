@@ -62,7 +62,7 @@ The suite caps `workers` at 2 locally, and 1 on CI. See [APPROACH.md](./APPROACH
 
 ### Continuous integration
 
-[`.github/workflows/playwright.yml`](./.github/workflows/playwright.yml) runs the suite on push and pull request as a three-job matrix, one per browser, with `fail-fast` disabled so a WebKit-only failure does not cancel the Chromium and Firefox runs. The HTML report is uploaded as an artifact from each job.
+Two workflows run on push and pull request. [`verify.yml`](./.github/workflows/verify.yml) runs `npm run verify`, and [`playwright.yml`](./.github/workflows/playwright.yml) runs the Chromium suite (See: [APPROACH.md](./APPROACH.md#only-chromium-gates-ci)). Firefox and WebKit sit behind that workflow's manual trigger, which takes a browser as an input; picking `all` runs the three as a matrix with `fail-fast` disabled, so a WebKit-only failure does not cancel the others. The HTML report is uploaded as an artifact from each job.
 
 ---
 
