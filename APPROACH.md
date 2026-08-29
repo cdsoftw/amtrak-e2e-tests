@@ -74,9 +74,13 @@ It is not a rate problem: a debounce or throttle coalesces a burst and then acts
 
 The autocomplete dropdown becomes flaky beyond these values. The failure is always the same: `locator.click` times out waiting for an option that is present and visible but never _stable_, which is one of the conditions Playwright checks before clicking.
 
-Amtrak doesn't seem to be throttling concurrent automated access - calling the station endpoint directly handled a large number of concurrent requests just fine. What degrades is the browser - so my best guess is that the dropdown animates in, and several instances of a page that boots multiple Angular applications compete for CPU until the animation no longer settles inside the timeout.
+Amtrak doesn't seem to be throttling concurrent automated access, as I was able to directly call the station endpoint with a large number of concurrent requests without issue. What degrades is only within the browser - my best guess is that the dropdown is animated, and running several instances of the page competes for CPU until it no longer settles inside the timeout.
 
-This appears to be a property of running heavyweight browsers side by side, not of the site. The cap is set explicitly rather than left to a default that scales with core count, since the default is what produced the failures. A machine with more headroom might tolerate more. CI drops to a single worker because GitHub's runners are more restricted in resources, so contention bites sooner there.
+This appears to be a consequence of running heavyweight browsers side by side, not of the site itself. The cap is set explicitly because the default is what produced the failures locally; a machine with more headroom might tolerate more. CI drops to a single worker because GitHub runners' resources are even more restricted.
+
+#### Only Chromium gates CI
+
+Push and pull request runs execute Chromium alone. Over 14 runs, it's the only browser that's never needed a retry; Firefox reports one or two flaky tests each time, and WebKit has failed outright more than once. Given more time, I would want to actually investigate and debug why the other two browsers are consistently flaky. For now, documenting Chromium as the only fully-supported browser is sufficient.
 
 ## Potential Improvements
 
@@ -106,4 +110,4 @@ The cookie banner would move again at that point. It is session state rather tha
 
 ### CI sharding
 
-The [sharding docs](https://playwright.dev/docs/test-sharding) show a matrix over `shardIndex` / `shardTotal`, and no browser-per-job example. Sharding splits one browser's tests across machines for speed, which is unnecessary for a suite of the current scope. The browser matrix instead serves the separate recommendation to [test across all browsers](https://playwright.dev/docs/best-practices), giving each engine its own job and its own report. The structural details follow the sharding example: `fail-fast: false`, and an artifact name keyed on the matrix value so the jobs do not collide when uploading.
+The [sharding docs](https://playwright.dev/docs/test-sharding) show a matrix over `shardIndex` / `shardTotal`, and no browser-per-job example. Sharding splits one browser's tests across machines for speed, which is unnecessary for a suite of the current scope. The browser matrix instead serves the separate recommendation to [test across all browsers](https://playwright.dev/docs/best-practices), giving each engine its own job and its own report when a manual run selects all three. The structural details follow the sharding example: `fail-fast: false`, and an artifact name keyed on the matrix value so the jobs do not collide when uploading.

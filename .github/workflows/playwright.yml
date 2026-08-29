@@ -4,6 +4,20 @@ on:
     branches: [master]
   pull_request:
     branches: [master]
+  # Manual runs can pick a browser. Triggering workflow_dispatch requires write
+  # access to the repo, so on a public repo with no collaborators it is
+  # owner-only.
+  workflow_dispatch:
+    inputs:
+      browser:
+        description: Browser project to run
+        type: choice
+        default: chromium
+        options:
+          - all
+          - chromium
+          - firefox
+          - webkit
 jobs:
   test:
     name: ${{ matrix.project }}
@@ -14,7 +28,18 @@ jobs:
       # whether the failure is browser-specific
       fail-fast: false
       matrix:
-        project: [chromium, firefox, webkit]
+        # push and pull_request gate on chromium only - it is the one project
+        # that has never needed a retry. Firefox reports 1-2 flaky tests on
+        # every run and webkit intermittently fails outright, so neither makes
+        # a useful gate. Both stay one manual run away via workflow_dispatch.
+        project: >-
+          ${{ fromJSON(
+            inputs.browser == 'chromium' && '["chromium"]'
+            || inputs.browser == 'firefox' && '["firefox"]'
+            || inputs.browser == 'webkit' && '["webkit"]'
+            || inputs.browser == 'all' && '["chromium","firefox","webkit"]'
+            || '["chromium"]'
+          ) }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
