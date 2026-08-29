@@ -1,4 +1,10 @@
-import { expect, test, type Locator, type Page } from '@playwright/test';
+import {
+  expect,
+  test,
+  errors,
+  type Locator,
+  type Page,
+} from '@playwright/test';
 import type { SearchCriteria, TripType } from '../data/search-criteria';
 import type { Station } from '../data/stations';
 
@@ -129,7 +135,11 @@ export class FindTrainsForm {
     const appeared = await allowAll
       .waitFor({ state: 'visible', timeout: 5_000 })
       .then(() => true)
-      .catch(() => false);
+      .catch((error: unknown) => {
+        // timeout is expected - anything else is a real fault and shouldn't be swallowed
+        if (error instanceof errors.TimeoutError) return false;
+        throw error;
+      });
 
     if (!appeared) return;
 
@@ -146,6 +156,9 @@ export class FindTrainsForm {
         .getByRole('button', { name: tripType, exact: true })
         .first()
         .click();
+
+      // synchronization: need to be sure the click landed on the right element
+      await expect(this.tripTypeButton).toContainText(tripType);
     });
   }
 
@@ -218,8 +231,8 @@ export class FindTrainsForm {
     await input.fill(station.query);
     await this.stationOptions.first().click();
 
-    // Synchronization: the field holds the station code once the selection is
-    // committed to the form, which happens after the keypress.
+    // synchronization: the field holds the station code once the selection is
+    // committed to the form, which happens after the keypress
     await expect(input).toHaveValue(station.code);
   }
 
@@ -257,6 +270,7 @@ export class FindTrainsForm {
    * button remains disabled.
    */
   private async enterDate(input: Locator, date: Date): Promise<void> {
+    await input.clear();
     await input.click({ force: true });
     await input.pressSequentially(formatDate(date), { delay: 40 });
     await this.page.keyboard.press('Escape'); // closes the calendar widget

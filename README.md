@@ -43,7 +43,7 @@ The suite runs against production `amtrak.com`. No credentials, environment vari
 
 ```shell
 npm run verify        # typecheck + lint + format, the same gate CI runs
-npm run lint          # eslint, including type-aware rules and playwright rules
+npm run lint          # eslint, including type-aware rules and playwright rules for specs
 npm run format        # prettier --write
 ```
 
@@ -51,7 +51,7 @@ npm run format        # prettier --write
 
 ```text
 pages/       page object for the Find trains form
-fixtures/    the `findTrains` test fixture (navigated, past the cookie banner)
+fixtures/    the `findTrains` test fixture
 data/        station reference data and the search-criteria factory
 tests/       specs
 ```
