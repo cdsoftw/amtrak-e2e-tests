@@ -14,7 +14,7 @@
     "test:ui": "playwright test --ui",
     "test:debug": "playwright test --project=chromium --debug",
     "report": "playwright show-report",
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

@@ -12,7 +12,7 @@ Tests are written in Playwright for Node.js and TypeScript. This was chosen for 
 
 ### On Locators
 
-From most to least preferable (in my opinion), Playwright can locate UI elements via accessibility role and name, Test ID, label, CSS selectors, or visible text. I avoid the use of XPath or HTML tag names, and use any other HTML attribute with caution.
+From most to least preferable (in my opinion), Playwright can locate UI elements via accessibility role and name, Test ID, label, CSS selectors, or visible text. I avoid the use of XPath or HTML tag names, and only use other HTML attributes when absolutely necessary.
 
 This site in particular makes an unusually strong case for role-based locators. By my analysis, `amtrak.com/home` hosts several independently bootstrapped Angular custom elements (`amt-md-farefinder`, `am-find-trip`, `train-schedule`, `book-now`, etc.). Many render their own station and date inputs, so the DOM contains multiple "From" fields, multiple date fields, and **two** FIND TRAINS buttons, both carrying the same `amt-auto-test-id="fare-finder-findtrains-button"`.
 
@@ -72,7 +72,7 @@ It is not a rate problem: a debounce or throttle coalesces a burst and then acts
 
 #### Parallelism is capped at two workers locally, and one on CI
 
-The autocomplete dropdown becomes flaky beyond these values. The failure is always the same: `locator.click` times out waiting for an option that is present and visible but never _stable_, which is one of the conditions Playwright checks before clicking.
+The autocomplete dropdown becomes flaky beyond these values. The failure is always the same: `locator.click` times out waiting for an option that is present and visible but never _stable_, which is Playwright's final pre-click condition check.
 
 Amtrak doesn't seem to be throttling concurrent automated access, as I was able to directly call the station endpoint with a large number of concurrent requests without issue. What degrades is only within the browser - my best guess is that the dropdown is animated, and running several instances of the page competes for CPU until it no longer settles inside the timeout.
 

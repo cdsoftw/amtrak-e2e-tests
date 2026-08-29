@@ -33,7 +33,6 @@ test.describe('Find trains - initial state', () => {
 
     await expect(findTrains.tripTypeButton).toContainText('One-Way');
     await expect(findTrains.travelersButton).toHaveText(/^\s*1\s*Traveler\s*$/);
-
     await expect(findTrains.findTrainsButton).toBeDisabled();
   });
 });
@@ -58,6 +57,7 @@ test.describe('Find trains - submission gate', () => {
     await findTrains.findTrainsButton.click();
   });
 
+  // eslint-disable-next-line playwright/expect-expect -- planned coverage, not yet written
   test.fixme('clearing a chosen station disables FIND TRAINS again', async () => {
     // complete a valid search so the button enables, then empty the origin
     // field - the button should become disabled once more
@@ -77,27 +77,41 @@ test.describe('Find trains - trip type', () => {
 
     // assert
     await expect(findTrains.tripTypeButton).toContainText('Round-Trip');
-    await expect(findTrains.returnDateInput).toBeVisible();
+    await expect(findTrains.returnDateInput).toBeEditable();
   });
 
   test('a return date is only requested for a round trip', async ({
     findTrains,
   }) => {
     // initial state: One-Way, no return date field
+    await expect(findTrains.tripTypeButton).toContainText('One-Way');
     await expect(findTrains.returnDateInput).toHaveCount(0);
 
     // act
     await findTrains.selectTripType('Round-Trip');
 
     // assert
-    await expect(findTrains.returnDateInput).toBeVisible();
-    await expect(findTrains.departDateInput).toBeVisible();
+    await expect(findTrains.returnDateInput).toBeEditable();
+    await expect(findTrains.departDateInput).toBeEditable();
   });
 
-  test.fixme('a complete round trip enables FIND TRAINS', async () => {
-    // makeSearch({ tripType: 'Round-Trip', returnDate: daysFromToday(21) })
+  test('a complete round trip enables FIND TRAINS', async ({ findTrains }) => {
+    // arrange
+    const search = makeSearch({
+      tripType: 'Round-Trip',
+      returnDate: daysFromToday(21),
+    });
+
+    // act
+    await findTrains.fillSearch(search);
+
+    // assert: the trip type check proves the form did not silently fall back
+    // to One-Way and enable on three fields instead of four
+    await expect(findTrains.findTrainsButton).toBeEnabled();
+    await expect(findTrains.tripTypeButton).toContainText('Round-Trip');
   });
 
+  // eslint-disable-next-line playwright/expect-expect -- planned coverage, not yet written
   test.fixme('supports Multi-City trips', async () => {
     // The trip-type tabs include Multi-City alongside One-Way and Round-Trip.
     // Selecting it, or clicking "Add Trip", adds another origin/destination/
@@ -159,25 +173,27 @@ test.describe('Find trains - rejected input', () => {
   }) => {
     // arrange
     const search = makeSearch({
-      origin: STATIONS.WAS,
-      destination: STATIONS.WAS,
+      origin: STATIONS.PHL,
+      destination: STATIONS.PHL,
     });
 
     // act
     await findTrains.fillSearch(search);
 
     // assert: both fields accept the station; the form rejects the combination
-    await expect(findTrains.originInput).toHaveValue(STATIONS.WAS.code);
-    await expect(findTrains.destinationInput).toHaveValue(STATIONS.WAS.code);
+    await expect(findTrains.originInput).toHaveValue(STATIONS.PHL.code);
+    await expect(findTrains.destinationInput).toHaveValue(STATIONS.PHL.code);
     await expect(findTrains.findTrainsButton).toBeDisabled();
   });
 
+  // eslint-disable-next-line playwright/expect-expect -- planned coverage, not yet written
   test.fixme('rejects a return date earlier than the departure date', async () => {
     // round trip, depart +14d, return +7d
   });
 });
 
 test.describe('Find trains - dates', () => {
+  // eslint-disable-next-line playwright/expect-expect -- planned coverage, not yet written
   test.fixme('a date can be chosen from the calendar picker', async () => {
     // Clicking either date control opens a modal calendar picker. As written,
     // the suite only enters dates via typing, so the widget most users would
@@ -187,21 +203,14 @@ test.describe('Find trains - dates', () => {
 });
 
 test.describe('Find trains - travelers', () => {
-  test.fixme('adding a traveler updates the count and its plural', async () => {
-    // click "+ Add adult", assert the button label goes from "1 Traveler" to
-    // "2 Travelers"; subtract and assert it returns to "1".
-  });
-
-  test.fixme('travelers are capped at nine', async () => {
-    // click "+ Add adult" until it disables; the expected cap is 9
-  });
-
-  test.fixme('mixed passenger types sum into the label', async () => {
-    // one adult plus a senior plus a youth reads "3 Travelers"
-  });
-
-  test.fixme('Reset restores a single adult', async () => {
-    // add several travelers of different types, click Reset, assert the label
-    // is back to "1 Traveler"
+  // eslint-disable-next-line playwright/expect-expect -- planned coverage, not yet written
+  test.fixme('the travelers panel updates the count', async () => {
+    // The largest untested part of the form: five passenger types (adult,
+    // senior, youth, child, infant), each with increment and decrement
+    // controls, plus a Reset button and a hard cap of nine travelers. Worth
+    // covering the label's plural ("1 Traveler" -> "2 Travelers"), mixed types
+    // summing into one total, the cap disabling the add button, and Reset
+    // restoring a single adult. Cheap to add - every control has an automation
+    // id and a clear accessible name; no dependency on autocomplete.
   });
 });

@@ -211,13 +211,21 @@ export class FindTrainsForm {
     await expect(input).toHaveValue(station.code);
   }
 
-  /** Fills a date input and asserts the form accepted it. */
+  /**
+   * Enters a date and waits for the text to land in the field.
+   *
+   * Synchronization only - it cannot prove the component parsed the date.
+   * MM/DD/YYYY and M/D/YYYY are the same string on days where month and day
+   * are both two digits, so on those dates the expected value below is exactly
+   * the string that was just typed.
+   *
+   * Acceptance is observable on FIND TRAINS, which needs a complete form - so
+   * the specs assert on that, not this method.
+   */
   private async fillDate(input: Locator, date: Date): Promise<void> {
     await this.enterDate(input, date);
 
-    // An accepted date is echoed back without the leading zero (01/31 becomes
-    // 1/31), so this waits for the component to have parsed the input rather
-    // than merely received it.
+    // date is echoed back without the leading zero (01/31 becomes 1/31)
     await expect(input).toHaveValue(normalizeDate(date));
   }
 
