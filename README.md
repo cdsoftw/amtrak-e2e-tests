@@ -60,12 +60,12 @@ tests/       specs
 
 The suite caps `workers` at 2 locally, and 1 on CI. See [APPROACH.md](./APPROACH.md#parallelism-is-capped-at-two-workers-locally-and-one-on-ci) for more info.
 
-### Continuous integration
+### Continuous Integration
 
-Two workflows run on push and pull request. [`verify.yml`](./.github/workflows/verify.yml) runs `npm run verify`, and [`playwright.yml`](./.github/workflows/playwright.yml) runs the Chromium suite (See: [APPROACH.md](./APPROACH.md#only-chromium-gates-ci)). Firefox and WebKit sit behind that workflow's manual trigger, which takes a browser as an input; picking `all` runs the three as a matrix with `fail-fast` disabled, so a WebKit-only failure does not cancel the others. The HTML report is uploaded as an artifact from each job.
+Two workflows run on both push and pull request: [`verify.yml`](./.github/workflows/verify.yml) runs `npm run verify`, and [`playwright.yml`](./.github/workflows/playwright.yml) runs the Chromium suite (See: [APPROACH.md](./APPROACH.md#only-chromium-gates-ci)). Firefox and WebKit sit behind that workflow's manual trigger, which takes a browser as an input; picking `all` tests all three browsers as a matrix. The HTML report is uploaded as an artifact from each job.
 
 ---
 
-### Tooling and process
+### Tooling
 
-Playwright + TypeScript, with Prettier + ESLint 10 with `typescript-eslint` type-aware rules and `eslint-plugin-playwright`. As an experiment, I initially made some use of the Playwright MCP and/or CLI + skills, but found it required enough correction that it was slower than writing things myself. In all, I leveraged Agentic AI only for a basic initial ideating process, as well as code reviews / bug-finding. I designed/chose the test cases myself, and all prose + source code in this repository was written, verified, and run by me personally.
+Playwright + TypeScript, with Prettier + ESLint 10 with `typescript-eslint` type-aware rules and `eslint-plugin-playwright`.
