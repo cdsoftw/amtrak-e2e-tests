@@ -31,6 +31,12 @@ export class FindTrainsForm {
   readonly stationOptions: Locator;
 
   /**
+   * The autocomplete's empty state, rendered in place of the option list when
+   * the typed text matches no station.
+   */
+  readonly noStationsFound: Locator;
+
+  /**
    * Locator for the parent element of the Find Trains form.
    *
    * amtrak.com/home hosts multiple custom elements, several of which render
@@ -74,9 +80,15 @@ export class FindTrainsForm {
       name: 'FIND TRAINS',
     });
 
-    // The autocomplete list exists outside the fare finder's subtree, so
-    // keep this one page-scoped.
+    // The autocomplete list exists outside the fare finder's subtree, so keep
+    // this one page-scoped.
     this.stationOptions = page.getByRole('option');
+
+    // The message is a bare <span> carrying no role, so located by text - but
+    // limited to elements with a listbox ancestor.
+    this.noStationsFound = page
+      .getByRole('listbox')
+      .getByText('No stations found');
   }
 
   private getStationInput(which: 'from' | 'to'): Locator {

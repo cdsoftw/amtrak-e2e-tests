@@ -127,7 +127,8 @@ test.describe('Find trains - station input', () => {
     // act
     await findTrains.typeInvalidOrigin('zzzznotastation');
 
-    // assert
+    // assert: waiting on empty state proves autocomplete ran and found nothing
+    await expect(findTrains.noStationsFound).toBeVisible();
     await expect(findTrains.stationOptions).toHaveCount(0);
     await expect(findTrains.findTrainsButton).toBeDisabled();
   });
