@@ -18,7 +18,7 @@ on:
 jobs:
   test:
     name: ${{ matrix.project }}
-    timeout-minutes: 15
+    timeout-minutes: 20
     runs-on: ubuntu-latest
     strategy:
       # one browser failing should not cancel the other two - this would hide
