@@ -15,6 +15,7 @@ on:
           - chromium
           - firefox
           - webkit
+
 jobs:
   test:
     name: ${{ matrix.project }}

@@ -70,7 +70,7 @@ The exclusions are scope decisions rather than oversights, and each is a straigh
 - Testing is strictly black-box.
 - Station reference data covers only the three stations the suite uses, verified by hand against the live autocomplete. Adding more is a one-line change in [`data/stations.ts`](./data/stations.ts).
 
-## Possible Amtrak Defects
+### Possible Amtrak Defects
 
 #### Post-click behavior is unverified
 
@@ -110,7 +110,7 @@ The form is a natural fit for leveraging [`@axe-core/playwright`](https://playwr
 
 If the audience and/or stakeholders for these tests included non-technical team members, integrating with a BDD framework (e.g., [Playwright-BDD](https://vitalets.github.io/playwright-bdd/#/)) might be worthwhile. This would enable collaboration in plain text instead of code, increasing alignment and shared understanding despite differences in skillset. In addition, it would combine all the benefits of Playwright with the best parts of BDD tools like Cucumber, including full support for the Gherkin language.
 
-## How this scales
+### How this scales
 
 There is one spec file today, organized with `describe` blocks, which is proportionate to a single form. At a larger scale I'd split by **feature area**: `stations`, `dates`, `passengers`, each file owning its own happy path, validation, and edge cases.
 
