@@ -1,0 +1,4 @@
+# Normalize line endings. Without this, core.autocrlf=true gives Windows
+# checkouts CRLF while Prettier expects LF, so `npm run verify` fails locally
+# and passes on CI's Linux runners.
+* text=auto eol=lf

@@ -1,0 +1,23 @@
+name: Verify
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+jobs:
+  # Typecheck, lint and format. Kept out of the Playwright workflow so that a
+  # manual browser run does not drag a lint job along with it.
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          # single source of truth, shared with local fnm/nvm via .nvmrc
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Typecheck, lint and format
+        run: npm run verify
