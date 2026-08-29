@@ -86,9 +86,7 @@ export class FindTrainsForm {
       name: 'FIND TRAINS',
     });
 
-    // The autocomplete list exists outside the fare finder's subtree, so keep
-    // this one page-scoped.
-    this.stationOptions = page.getByRole('option');
+    this.stationOptions = this.root.getByRole('option');
 
     // The message is a bare <span> carrying no role, so located by text - but
     // limited to elements with a listbox ancestor.
@@ -152,9 +150,8 @@ export class FindTrainsForm {
   async selectTripType(tripType: TripType): Promise<void> {
     await test.step(`Select trip type "${tripType}"`, async () => {
       await this.tripTypeButton.click();
-      await this.page // dropdown options exist outside root's subtree
+      await this.root
         .getByRole('button', { name: tripType, exact: true })
-        .first()
         .click();
 
       // synchronization: need to be sure the click landed on the right element
