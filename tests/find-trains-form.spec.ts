@@ -131,9 +131,7 @@ test.describe('Find trains - station input', () => {
     await findTrains.setDestination(search.destination);
     await findTrains.swapStationsButton.click();
 
-    // assert: a station field displays its code once a suggestion is accepted,
-    // but the swap re-renders both inputs and puts the station name back - so
-    // the assertions accept either spelling of the same station.
+    // assert
     await expect(findTrains.originInput).toHaveValue(search.destination.code);
     await expect(findTrains.destinationInput).toHaveValue(search.origin.code);
   });
