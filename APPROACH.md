@@ -18,11 +18,11 @@ All prose + source code in this repository was written, verified, and run by me 
 
 Three patterns carry the structure:
 
-- **[Page Object Model](https://playwright.dev/docs/pom)** - [`pages/find-trains-form.page.ts`](./pages/find-trains-form.page.ts) owns every locator and every interaction with the form, so a markup change has exactly one place to land. Its methods synchronize but do not assert: a verdict on the application's behavior belongs to the spec that asked the question.
-- **Test data factory** - [`makeSearch()`](./data/search-criteria.ts) returns a valid one-way search with any field overridable, so a test states only what makes it different. `makeSearch({ origin: STATIONS.PHL, destination: STATIONS.PHL })` reads as "the same-station case" and nothing else, and relative dates mean the data never rots.
+- **[Page Object Model](https://playwright.dev/docs/pom)** - [`pages/find-trains-form.page.ts`](./pages/find-trains-form.page.ts) owns every locator and every interaction with the form, so a UI change has exactly one place to land. Its methods synchronize but do not assert: a verdict on the application's behavior belongs to the calling spec.
+- **Test data factory** - [`makeSearch()`](./data/search-criteria.ts) returns a valid one-way search with any field overridable, so a test states only what makes it different. `makeSearch({ origin: STATIONS.PHL, destination: STATIONS.PHL })` reads as "the same-station case" and nothing else, and relative dates ensure the data never rots.
 - **Fixtures as dependency injection** - [`fixtures/test.ts`](./fixtures/test.ts) hands each test a `findTrains` page object that is already navigated and past the cookie banner. Tests declare what they need in their arguments rather than constructing it, which is what keeps setup out of the test bodies.
 
-A builder (`aSearch().from(NYP).to(WAS).departing(...)`) would buy the same expressiveness at the cost of a chaining API, and earns that cost once construction has ordering rules or interdependent fields. `SearchCriteria` has four fields and no such rules, so the factory is the proportionate choice. The builder is the refactor I would reach for if Multi-City landed and a search became a list of legs.
+A builder buys the same expressiveness at the cost of a chaining API, and would earn that cost once construction has ordering rules and/or interdependent fields. `SearchCriteria` has four fields and no such rules (other than One-Way not supporting a return date), so the factory is the proportionate choice. A builder might be more appropriate if we add `Multi-City` support, as that would require handling a search form that contains an indefinite number of trip legs.
 
 ### On Locators
 
@@ -43,7 +43,7 @@ Exhaustive coverage of the form is unrealistic within the time budget, so I focu
 
 The submit button is disabled initially, and only enables once origin, destination, and departure date are all satisfied. That transition is the application's verdict on whether the form is valid, and it sits exactly on the scope boundary.
 
-`npx playwright test --list` prints the full picture: what is covered vs. what is declared with `test.fixme` but not yet written. The planned items sit in the same `describe` block as the tests they relate to, so each area shows its own gaps.
+The spec is the home for coverage decisions: it uses `test` for what's covered, and `test.fixme` for what was planned but not written. Each run prints the latter with a `-` and counts them as skipped. The planned items sit in the same `describe` block as the tests they relate to, so each area shows its own gaps.
 
 ### What the page object covers
 
@@ -70,7 +70,7 @@ The exclusions are scope decisions rather than oversights, and each is a straigh
 - Testing is strictly black-box.
 - Station reference data covers only the three stations the suite uses, verified by hand against the live autocomplete. Adding more is a one-line change in [`data/stations.ts`](./data/stations.ts).
 
-## Possible Amtrak Issues
+## Possible Amtrak Defects
 
 #### Post-click behavior is unverified
 
