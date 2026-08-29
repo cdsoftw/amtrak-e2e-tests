@@ -209,6 +209,9 @@ export class FindTrainsForm {
 
   /** Fills the whole form from a built SearchCriteria. */
   async fillSearch(criteria: SearchCriteria): Promise<void> {
+    // One-Way needs no selection - the form loads in that state and every test
+    // gets a fresh page, so that's always the starting point. Tests can assert
+    // this trip type themselves when needed.
     if (criteria.tripType !== 'One-Way') {
       await this.selectTripType(criteria.tripType);
     }
