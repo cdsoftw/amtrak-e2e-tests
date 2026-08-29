@@ -62,7 +62,7 @@ The travelers control is only half covered, which the table above marks as "read
 
 #### Post-click behavior is unverified
 
-Clicking FIND TRAINS with a valid search does not change the URL. The results page is out of scope, so the suite asserts only that the button becomes enabled and is clickable. Asserting on the outcome would mean investigating behavior the brief puts outside the boundary.
+Clicking FIND TRAINS with a valid search does not change the URL under automation (possible bot detection?). The results page is out of scope, so the suite asserts only that the button becomes enabled and is clickable. Asserting on the outcome would mean investigating behavior the brief puts outside the boundary.
 
 #### Date input fields can't use typical interactions
 

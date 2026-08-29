@@ -14,7 +14,7 @@ import type { Station } from '../data/stations';
 export class FindTrainsForm {
   private static readonly PATH = '/home';
 
-  readonly page: Page;
+  private readonly page: Page;
 
   // form controls
   readonly tripTypeButton: Locator;
@@ -182,18 +182,6 @@ export class FindTrainsForm {
     });
   }
 
-  async swapStations(): Promise<void> {
-    await test.step('Swap origin and destination', async () => {
-      await this.swapStationsButton.click();
-    });
-  }
-
-  async submit(): Promise<void> {
-    await test.step('Click FIND TRAINS', async () => {
-      await this.findTrainsButton.click();
-    });
-  }
-
   /** Fills the whole form from a built SearchCriteria. */
   async fillSearch(criteria: SearchCriteria): Promise<void> {
     if (criteria.tripType !== 'One-Way') {
@@ -216,7 +204,6 @@ export class FindTrainsForm {
    */
   private async selectStation(input: Locator, station: Station): Promise<void> {
     await input.fill(station.query);
-    // No waitFor before the click, for the same reason as selectTripType.
     await this.stationOptions.first().click();
 
     // Synchronization: the field holds the station code once the selection is

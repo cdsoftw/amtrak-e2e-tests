@@ -12,8 +12,7 @@ export const test = base.extend<{ findTrains: FindTrainsForm }>({
   findTrains: async ({ page }, use) => {
     const findTrains = new FindTrainsForm(page);
     await findTrains.goto();
-    // the banner is cookie-backed and appears once per browser context
-    await findTrains.dismissCookieBannerIfPresent();
+    await findTrains.dismissCookieBannerIfPresent(); // appears once per browser context
     await use(findTrains);
   },
 });

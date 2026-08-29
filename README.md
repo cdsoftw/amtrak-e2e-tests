@@ -2,7 +2,7 @@
 
 ## [Cole Dapprich](https://www.linkedin.com/in/cdsoft/)
 
-This repository contains an end-to-end test suite for the **"Find trains"** search form on the [Amtrak homepage](https://www.amtrak.com/home), written in Playwright for Node.js and TypeScript. Scope is deliberately narrowed to the form and its inputs, up to and including the FIND TRAINS button click; limited to a ~4-5 hour time limit.
+This repository contains an end-to-end test suite for the **"Find trains"** search form on the [Amtrak homepage](https://www.amtrak.com/home), written in Playwright for Node.js and TypeScript. Scope is deliberately narrowed to the form and its inputs, up to and including the FIND TRAINS button click; limited to a ~4-5 hour timespan.
 
 ### [Testing Approach](./APPROACH.md)
 
@@ -33,7 +33,7 @@ npm run report        # open the HTML report from the last run
 To run a single spec or a single test:
 
 ```shell
-npx playwright test tests/find-trains.spec.ts
+npx playwright test tests/find-trains-form.spec.ts --project=chromium
 npx playwright test -g "round trip"
 ```
 
@@ -68,4 +68,4 @@ Two workflows run on push and pull request. [`verify.yml`](./.github/workflows/v
 
 ### Tooling and process
 
-Playwright + TypeScript, with Prettier + ESLint 9 with `typescript-eslint` type-aware rules and `eslint-plugin-playwright`. As an experiment, I initially made some use of the Playwright MCP and/or CLI + skills, but found their results a tad lackluster for a greenfield project like this. In all, I leveraged Agentic AI only for a basic initial ideating process, as well as code reviews / bug-finding. I designed/chose the test cases myself, and all prose + source code in this repository was written, verified, and ran by me personally.
+Playwright + TypeScript, with Prettier + ESLint 10 with `typescript-eslint` type-aware rules and `eslint-plugin-playwright`. As an experiment, I initially made some use of the Playwright MCP and/or CLI + skills, but found it required enough correction that it was slower than writing things myself. In all, I leveraged Agentic AI only for a basic initial ideating process, as well as code reviews / bug-finding. I designed/chose the test cases myself, and all prose + source code in this repository was written, verified, and run by me personally.

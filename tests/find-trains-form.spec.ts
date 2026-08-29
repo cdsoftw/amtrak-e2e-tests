@@ -55,7 +55,7 @@ test.describe('Find trains - submission gate', () => {
     await expect(findTrains.findTrainsButton).toBeEnabled(); // form completely filled
 
     // edge of the scope - asserting anything after would test the results page
-    await findTrains.submit();
+    await findTrains.findTrainsButton.click();
   });
 
   test.fixme('clearing a chosen station disables FIND TRAINS again', async () => {
@@ -125,7 +125,7 @@ test.describe('Find trains - station input', () => {
     // act
     await findTrains.setOrigin(search.origin);
     await findTrains.setDestination(search.destination);
-    await findTrains.swapStations();
+    await findTrains.swapStationsButton.click();
 
     // assert: a station field displays its code once a suggestion is accepted,
     // but the swap re-renders both inputs and puts the station name back - so

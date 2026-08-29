@@ -4,9 +4,6 @@ on:
     branches: [master]
   pull_request:
     branches: [master]
-  # Manual runs can pick a browser. Triggering workflow_dispatch requires write
-  # access to the repo, so on a public repo with no collaborators it is
-  # owner-only.
   workflow_dispatch:
     inputs:
       browser:
