@@ -8,15 +8,6 @@ This repository contains an end-to-end test suite for the **"Find trains"** sear
 
 ---
 
-### Project structure
-
-```text
-pages/       page object for the Find trains form
-fixtures/    the `findTrains` test fixture
-data/        station reference data and the search-criteria factory
-tests/       specs
-```
-
 ### Requirements
 
 Node.js 22 or 24 LTS (an [`.nvmrc`](./.nvmrc) is provided; `fnm use` or `nvm use` will pick it up). Install dependencies and browsers:
@@ -48,16 +39,25 @@ npx playwright test -g "round trip"
 
 The suite runs against production `amtrak.com`. No credentials, environment variables, or local services are required. To point it somewhere else, set `BASE_URL`.
 
-### A note on parallelism
-
-The suite caps `workers` at 2 locally, and 1 on CI. See [APPROACH.md](./APPROACH.md#parallelism-is-capped-at-two-workers-locally-and-one-on-ci) for more info.
-
 ### Checks
 
 ```shell
 npm run verify        # typecheck + lint + format, the same gate CI runs
 npm run lint          # eslint, including type-aware rules and playwright rules for specs
 npm run format        # prettier --write
+```
+
+### A note on parallelism
+
+The suite caps `workers` at 2 locally, and 1 on CI. See [APPROACH.md](./APPROACH.md#parallelism-is-capped-at-two-workers-locally-and-one-on-ci) for more info.
+
+### Project structure
+
+```text
+pages/       page object for the Find trains form
+fixtures/    the `findTrains` test fixture
+data/        station reference data and the search-criteria factory
+tests/       specs
 ```
 
 ### Continuous Integration
