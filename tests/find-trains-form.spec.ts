@@ -1,17 +1,6 @@
 import { test, expect } from '../fixtures/test';
 import { makeSearch, daysFromToday } from '../data/search-criteria';
-import { STATIONS, type Station } from '../data/stations';
-
-/** Station data is interpolated into a RegExp, so metacharacters must escape. */
-const escapeRegExp = (text: string) =>
-  text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-/** Matches both the code and the full name in a station field. */
-const identifies = (station: Station) =>
-  new RegExp(
-    `^(${escapeRegExp(station.code)}|${escapeRegExp(station.query)})`,
-    'i'
-  );
+import { STATIONS } from '../data/stations';
 
 /**
  * Scope: the "Find trains" search form on amtrak.com/home, up to and including
@@ -145,12 +134,8 @@ test.describe('Find trains - station input', () => {
     // assert: a station field displays its code once a suggestion is accepted,
     // but the swap re-renders both inputs and puts the station name back - so
     // the assertions accept either spelling of the same station.
-    await expect(findTrains.originInput).toHaveValue(
-      identifies(search.destination)
-    );
-    await expect(findTrains.destinationInput).toHaveValue(
-      identifies(search.origin)
-    );
+    await expect(findTrains.originInput).toHaveValue(search.destination.code);
+    await expect(findTrains.destinationInput).toHaveValue(search.origin.code);
   });
 });
 

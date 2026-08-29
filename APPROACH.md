@@ -4,10 +4,6 @@
 
 [Amtrak - Home](https://www.amtrak.com/home), specifically the "Find trains" search form. Scope stops at the FIND TRAINS button click - the search results page and the booking flow are untested.
 
-### A note on AI usage
-
-All prose + source code in this repository was written, verified, and run by me personally. As an experiment, I initially made some use of the Playwright MCP and/or CLI + skills, but found it required enough correction that it was slower than writing things myself. In all, I only leveraged Agentic AI for the basic initial ideating process, code review passes, and bug finding/fixes. I chose which scenarios to test and designed the specs without any meaningful LLM assistance.
-
 ## Tools and Techniques
 
 Tests are written in Playwright for Node.js and TypeScript. This was chosen for its popularity in the testing domain and relatively painless setup process.
@@ -24,9 +20,13 @@ A builder buys the same expressiveness at the cost of a chaining API, and would 
 
 ### On Locators
 
-Playwright can locate UI elements via a variety of methods. My personal order of preference (most to least) is to use accessibility role + name, Test ID, label, CSS selectors, or visible text. I avoid the use of XPath or tag names, and only leverage other HTML attributes when absolutely necessary.
+Playwright can locate UI elements via a variety of methods. My personal order of preference (most to least) is to use accessibility role + name, Test ID, label, CSS selectors, or visible text. I avoid the use of XPath or tag names whenever possible, and only leverage other HTML attributes when necessary.
 
-This site in particular makes a strong case for role-based locators. By my analysis, `amtrak.com/home` hosts several independently bootstrapped custom Angular elements. Many render their own station and date inputs, so the DOM contains multiple "From" fields, multiple date fields, and two FIND TRAINS buttons, both carrying the same `amt-auto-test-id="fare-finder-findtrains-button"`. Amtrak _does_ ship automation hooks, but they aren't always unique, so the accessibility tree is the more reliable index. The page object also scopes everything to the `fare-finder-travel-selection` parent element for the same reasons.
+This site in particular makes a strong case for role-based locators. By my analysis, `amtrak.com/home` hosts several independently bootstrapped custom Angular elements. Many render their own station and date inputs, so the DOM contains multiple "From" fields, multiple date fields, and two FIND TRAINS buttons, both carrying the same `amt-auto-test-id="fare-finder-findtrains-button"`. Amtrak _does_ ship automation hooks, but they aren't always unique, so the accessibility tree is the more reliable index. The page object also scopes everything to the `fare-finder-cmp` parent element for the same reasons.
+
+### A note on AI usage
+
+All prose in this repository was written by me personally; test coverage decisions and spec design are my own. As an experiment, I tried the Playwright MCP/CLI early on, but ended up dropping it - correcting it was often slower than doing the work myself. In all, Agentic AI was only used for initial ideation, code review passes, and bug hunting/fixes - and I thoroughly reviewed and verified the small percentage of code I did not directly author.
 
 ## Test Coverage
 
@@ -58,8 +58,10 @@ Clicking either date control opens a modal date picker with 84 `gridcell` elemen
 ## Assumptions
 
 - The suite runs against production `amtrak.com`. There is no staging environment available, so `BASE_URL` is configurable more as a matter of form than because a second environment exists.
+- The AUT will always be available and performant whenever our tests are run.
 - Testing is strictly black-box.
 - Station reference data covers only the three stations the suite uses, verified by hand against the live autocomplete. Adding more is a one-line change in [`data/stations.ts`](./data/stations.ts).
+- Desktop support only - no mobile testing was performed, and is assumed to be out of scope.
 
 ### Possible Amtrak defects
 
@@ -67,23 +69,17 @@ Clicking either date control opens a modal date picker with 84 `gridcell` elemen
 
 Clicking FIND TRAINS with a valid search does not change the URL when under automation (possible bot detection?). The results page is out of scope, so the suite asserts only that the button becomes enabled and is clickable. Asserting on the outcome would mean investigating behavior the brief puts outside the boundary.
 
-### Station inputs drop their accessibility role
-
-The station input fields expose `role="combobox"` **only while empty**. Once an autocomplete selection is chosen, `getByRole` stops matching the field that was just filled, and no assertion can be made against that locator. Those two elements _do_ use the wrapper's automation id, which survives that transition. Playwright's [`testIdAttribute`](https://playwright.dev/docs/locators#locate-by-test-id) is pointed at Amtrak's `amt-auto-test-id` in the config, so those two locators use `getByTestId(...)` instead of CSS attribute selectors.
-
 #### Date input fields can't use typical interactions
 
-Both date inputs need `click({ force: true })` before typing. A floating `<label>` sits over the center of them and intercepts pointer events, causing ordinary clicks to time out. Additionally, `fill()` works perfectly on the station input fields, but _doesn't work_ for departure/return date - the text appears in the box, the component never acts on it, and FIND TRAINS stays disabled with every field appearing populated. Only real keystrokes work, even with zero delay - so there is no speed ceiling being crossed. It's also not a readiness problem: waiting up to 20 seconds after page load before calling `fill()` had no effect. Instead, the component appears to require per-character text insertion.
+Both date inputs need `click({ force: true })` before typing. A floating `<label>` sits over the center of them and intercepts pointer events, causing ordinary clicks to time out. Additionally, `fill()` works perfectly on the station input fields, but _doesn't work_ for departure/return date - the text appears in the box, the component never acts on it, and FIND TRAINS stays disabled with every field appearing populated. Only real keystrokes work, seemingly even with zero delay, so there is no speed ceiling being crossed. It's also not a readiness problem: waiting up to 20 seconds after page load before calling `fill()` had no effect. Instead, the component appears to require per-character text insertion.
 
-## Known limitations
+### Known limitations
 
 #### Parallelism is capped at two workers locally, and one on CI
 
-The autocomplete dropdown becomes flaky beyond these values. The failure is always the same: `locator.click` times out waiting for an option that is present and visible but never _stable_, which is Playwright's final pre-click condition check.
+The autocomplete dropdown becomes flaky beyond these values, with the same recurring failure: `locator.click` times out waiting for an option that is present and visible but never _stable_ (Playwright's final pre-click condition check). Amtrak doesn't seem to be throttling concurrent automated access, as I was able to concurrently call the station endpoint many times without issue. What degrades is only within the browser - my best guess is that the dropdown is animated, and running several instances of the page competes for CPU until it no longer settles inside the timeout.
 
-Amtrak doesn't seem to be throttling concurrent automated access, as I was able to directly call the station endpoint with a large number of concurrent requests without issue. What degrades is only within the browser - my best guess is that the dropdown is animated, and running several instances of the page competes for CPU until it no longer settles inside the timeout.
-
-This appears to be a consequence of running heavyweight browsers side by side, not of the site itself. The cap is set explicitly because the default is what produced the failures locally; a machine with more headroom might tolerate more. CI drops to a single worker because GitHub runners' resources are even more restricted.
+The cap is set explicitly because the default is what produced the failures locally; a machine with more headroom might tolerate more. CI drops to a single worker because GitHub runners' resources are even more restricted.
 
 #### Only Chromium gates CI
 
@@ -98,10 +94,6 @@ If applicable and useful, I would implement action-based testing that bypasses t
 ### Accessibility assertions
 
 The form is a natural fit for leveraging [`@axe-core/playwright`](https://playwright.dev/docs/accessibility-testing), adding coverage for an entirely new facet of the User Experience. For example, while working on locators, I noticed that one of the station inputs carries `aria-label="To staion"` - a typo in Amtrak's own markup. That's the class of defect an accessibility-first locator strategy surfaces for free, and a good illustration of why role-based locators are worth the effort. They fail when the accessible name breaks, which is a real user-facing bug.
-
-### Behavior-driven development (BDD)
-
-If the audience and/or stakeholders for these tests included non-technical team members, integrating with a BDD framework (e.g., [Playwright-BDD](https://vitalets.github.io/playwright-bdd/#/)) might be worthwhile. This would enable collaboration in plain text instead of code, increasing alignment and shared understanding despite differences in skillset. In addition, it would combine all the benefits of Playwright with the best parts of BDD tools like Cucumber, including full support for the Gherkin language.
 
 ### How this scales
 
